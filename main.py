@@ -4,51 +4,16 @@ import os
 import subprocess
 from typing import List
 
-import psutil
 import typer
 from rich.console import Console
 
 from arayuz import goster_ve_onayla
-from baglam import baglam_topla
+from baglam import baglam_topla, git_durumu, kabuk_bul
 from gemma import gemma_sor
 from maskeleme import maskele
 
 app = typer.Typer(add_completion=False)
 console = Console()
-
-
-def kabuk_tespit():
-    try:
-        ust = psutil.Process().parent()
-        for _ in range(6):
-            if ust is None:
-                break
-            ad = ust.name().lower()
-            if "pwsh" in ad or "powershell" in ad:
-                return "PowerShell"
-            if ad.startswith("cmd"):
-                return "CMD"
-            ust = ust.parent()
-    except Exception:
-        pass
-    return "CMD"
-
-
-def git_durumu():
-    try:
-        sonuc = subprocess.run(
-            "git status -sb",
-            shell=True,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-        )
-        if sonuc.returncode == 0:
-            return maskele(sonuc.stdout)
-    except Exception:
-        pass
-    return ""
 
 
 def komut_sor_baglami(istek):
@@ -58,8 +23,8 @@ def komut_sor_baglami(istek):
         "cikti": "",
         "hata_kodu": 0,
         "klasor": maskele(os.getcwd()),
-        "kabuk": kabuk_tespit(),
-        "git": git_durumu(),
+        "kabuk": kabuk_bul(),
+        "git": maskele(git_durumu()),
     }
 
 
@@ -86,7 +51,7 @@ def ana(
 
     with console.status("Gemma düşünüyor..."):
         cevap = gemma_sor(baglam)
-    goster_ve_onayla(cevap)
+    goster_ve_onayla(cevap, baglam["kabuk"])
 
 
 if __name__ == "__main__":
