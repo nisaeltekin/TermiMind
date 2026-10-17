@@ -4,7 +4,7 @@ import re
 DESENLER = [
     # 1. .env satırları: API_KEY=..., DB_PASSWORD: ..., DB_SIFRE=...
     #    Adı Error/Exception/Warning ile biten hata isimleri hariç (örn. InvalidTokenError)
-    (re.compile(r"(?i)\b(\w*(?:KEY|SECRET|TOKEN|PASSWORD|PASSWD|PWD|SIFRE|ŞIFRE|ŞİFRE|PAROLA)\w*)(?<!ERROR)(?<!EXCEPTION)(?<!WARNING)\s*([=:])\s*[^\s\"']+"), r"\1\2***"),
+    (re.compile(r"(?i)\b(\w*(?:KEY|SECRET|TOKEN|PASSWORD|PASSWD|PWD|SIFRE|ŞIFRE|ŞİFRE|PAROLA|KULLANICI|USERNAME)\w*)(?<!ERROR)(?<!EXCEPTION)(?<!WARNING)\s*([=:])\s*[^\s\"']+"), r"\1\2***"),
     # 2. Bilinen servis anahtarları
     (re.compile(r"\b(?:ghp|gho|github_pat)_[A-Za-z0-9_]{20,}"), "***"),
     (re.compile(r"\bsk-[A-Za-z0-9_-]{20,}"), "***"),
