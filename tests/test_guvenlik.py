@@ -43,3 +43,16 @@ def test_tehlikeli_komutlar_yakalanir(komut):
     sonuc = tehlike_kontrol(komut)
     assert sonuc["tehlikeli"] is True
     assert sonuc["sebep"] != ""
+
+
+from guvenlik import istek_tehlikeyi_gerektiriyor_mu
+
+
+def test_silme_istegi_algilanir():
+    assert istek_tehlikeyi_gerektiriyor_mu("node_modules klasörünü sil")
+    assert istek_tehlikeyi_gerektiriyor_mu("son commitlerimi nasıl silerim")
+
+
+def test_belirsiz_istek_silme_sayilmaz():
+    assert not istek_tehlikeyi_gerektiriyor_mu("node_modules klasörünü değiştir")
+    assert not istek_tehlikeyi_gerektiriyor_mu("son 3 commit'i göster")    

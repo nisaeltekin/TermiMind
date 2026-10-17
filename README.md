@@ -2,7 +2,7 @@
 
 **Gemma 4 ile çalışan, yerel ve gizlilik odaklı terminal asistanı.** Hataları sade bir Türkçeyle açıklar, güvenli düzeltmeler önerir ve gizli bilgilerini hiçbir yere göndermez.
 
-**Hacktoberfest Elazığ 2026**'da ilot chattek gecede geliştirildi.
+**Hacktoberfest Elazığ 2026**'da (FÜBEV × MLH × DEV × DigitalOcean) tek gecede geliştirildi.
 
 ## Neden TermiMind?
 
@@ -16,8 +16,6 @@ olabilir. TermiMind bu verilerin bilgisayarından çıkmasına gerek bırakmaz:
 - Komut asla otomatik çalışmaz, her zaman senden onay ister.
 
 Öğrenciler için bir faydası daha var: TermiMind sadece *ne* yazılacağını değil, hatanın *neden* olduğunu da Türkçe anlatır.
-
-Orta segment bir öğrenci laptopunda (MSI, NVIDIA ekran kartı) `gemma4:e4b` **tamamen GPU'da** çalışıyor ve yaklaşık **7-10 saniyede** cevap veriyor.
 
 ## Kurulum
 
@@ -53,7 +51,7 @@ python main.py --sor "son 5 commit'i göster"
 
 Önerilen komut için üç seçenek sunulur: **[E]** Çalıştır, **[C]** Kopyala,
 **[A]** Vazgeç. Tehlikeli komutlar (dosya silme, `git reset --hard` vb.) kırmızı
-uyarıyla işaretlenir ve çalıştırmadan önce ikinci onay istenir.
+uyarıyla işaretlenir ve çalıştırmadan önce ikinci onay (`evet` yazmak) istenir.
 
 Komut başarılı olursa Gemma'ya hiç sorulmaz. Komut, TermiMind'ın algıladığı kabukta (CMD veya PowerShell) çalıştırılır; Gemma da önerisini bu kabuğa göre yapar.
 
@@ -63,22 +61,34 @@ Komut başarılı olursa Gemma'ya hiç sorulmaz. Komut, TermiMind'ın algıladı
 2. `gemma.py`: model komutun riskini tahmin eder.
 3. `guvenlik.py`: kural tabanlı ikinci katman. Modele güvenlik kararını bırakmayız,
    tehlikeli komutlar model ne derse desin yakalanır.
-4. `arayuz.py`: maskelenmiş değer (`***`) içeren komutlar **hiç çalıştırılamaz**, sadece kopyalanabilir. Model gerçek değeri hiç görmediği için komut eksiktir; kullanıcı `***` yerine gerçek değeri kendisi yazar.
+4. `main.py`: kullanıcının isteğinde silme niyeti yoksa (örneğin "klasörü **değiştir**") ama model yine de tehlikeli bir komut önerirse, komut gösterilmez ve kullanıcıya ne demek istediği sorulur. Bu karar kodda verilir, modelin keyfine bırakılmaz.
+5. `arayuz.py`: maskelenmiş değer (`***`) içeren komutlar **hiç çalıştırılamaz**, sadece kopyalanabilir. Model gerçek değeri hiç görmediği için komut eksiktir; kullanıcı `***` yerine gerçek değeri kendisi yazar.
 
 ### Neler maskeleniyor?
 
-- `.env` tarzı gizli bilgiler: adında `KEY`, `SECRET`, `TOKEN`, `PASSWORD`, `PWD` ve Türkçe `SIFRE` / `PAROLA` geçenler
-- Bilinen anahtar biçimleri (`ghp_…`, `github_pat_…`, `sk-…`)
+- `.env` tarzı gizli bilgiler: adında `KEY`, `SECRET`, `TOKEN`, `PASSWORD`, `PWD` ve Türkçe `SIFRE` / `PAROLA` geçenler; tırnaklı (`API_KEY="..."`) ve JSON (`"api_key": "..."`) biçimleri dahil
+- Bearer token'lar ve JWT'ler
+- Bilinen anahtar biçimleri: GitHub (`ghp_…`, `github_pat_…`), OpenAI (`sk-…`), GitLab (`glpat-…`), Slack (`xoxb-…`), npm (`npm_…`), AWS (`AKIA…`)
 - IP adresleri (`127.0.0.1` ve `0.0.0.0` hariç; bunlar gizli değil ve hata ayıklarken işe yarıyor)
 - E-posta adresleri
 - Dosya yollarındaki Windows kullanıcı adı
 
 Hata ayıklama için önemli olan bilgiler (hata türü, port, satır numarası, dosya adı) **korunur**, böylece model yine de yardımcı olabilir.
 
-### Gece yakaladığımız iki detay
+### Gece yakaladığımız detaylar
 
 - **Önce maskele, sonra kısalt.** Uzun çıktılar son 3000 karaktere kısaltılıyor, ama ancak maskelemeden *sonra*. Aksi halde kesim noktası `API_KEY=abc123` satırının ortasına denk gelip `Y=abc123` kısmını açıkta bırakabilirdi.
-- **Görünmez karakterler maskelemeyi atlatamaz.** Test ederken kendi git e-posta adresimizde `@` işaretinden hemen önce görünmez bir kontrol karakteri (`\x91`) olduğunu fark ettik. Ekranda normal görünüyordu ama e-posta filtresinden kaçıyordu. Artık maskelemeden önce görünmez ve sıfır genişlikli karakterler temizleniyor; bunu bir test de güvence altına alıyor.
+- **Görünmez karakterler maskelemeyi atlatamaz.** Test ederken kendi git e-posta adresimizde `@` işaretinden hemen önce görünmez bir kontrol karakteri (`\x91`) olduğunu fark ettik. Ekranda normal görünüyordu ama e-posta filtresinden kaçıyordu. Artık maskelemeden önce tüm görünmez kontrol ve biçim karakterleri ile terminal renk kodları temizleniyor.
+
+## GitHub Copilot ile güvenlik incelemesi
+
+VS Code'da GitHub Copilot Chat'ten `maskeleme.py` için güvenlik incelemesi istedik. Copilot 3 bulgu raporladı:
+
+1. Tırnaklı değerler ve JSON maskelenmiyordu → **düzeltildi**
+2. Unicode biçim karakterleri ve ANSI renk kodlarıyla maskeleme atlatılabiliyordu → **düzeltildi**
+3. Bearer, JWT, GitLab, Slack, npm ve AWS token'ları eksikti → **eklendi**
+
+Copilot'un her söylediğini olduğu gibi kabul etmedik: `access_token` ve `client_secret` alanlarının maskelenmediği iddiası doğru değildi, çünkü bunlar zaten `TOKEN` / `SECRET` kuralıyla yakalanıyordu. İnceleme sırasında Copilot tüm kullanıcı klasörünü taramak ve bir terminal komutu çalıştırmak için izin istedi; ikisini de reddettik. TermiMind'ın "gereğinden fazla veri paylaşma, onaysız komut çalıştırma" ilkesini kendi geliştirme sürecimizde de uyguladık.
 
 ## Şirket demosu
 
@@ -91,31 +101,62 @@ python main.py python demo-sirket/app.py   # sonra: hepsi maskeli, hata yine aç
 
 Bizim denememizde Gemma `ping ***.***.***.*** -n 1` önerdi. Gerçek IP'yi göremediği için TermiMind **[E]** seçeneğini kapattı ve kullanıcıdan komutu kopyalayıp gerçek değeri kendisinin yazmasını istedi.
 
-## Testler ve otomasyon
+## Testler ve ölçümler
 
-- Maskeleme ve tehlike tespiti için **30 pytest testi**. Gereksiz alarm vermediğimizden emin olmak için tehlikeliye benzeyen ama güvenli komutlar da test ediliyor (`rm dosya.txt`, `git push origin main`, `git branch -d`).
+### Otomatik testler
+
+- Maskeleme ve tehlike tespiti için **40 pytest testi**. Gereksiz alarm vermediğimizden emin olmak için tehlikeliye benzeyen ama güvenli komutlar da test ediliyor (`rm dosya.txt`, `git push origin main`, `git branch -d`, `git reset dosya.py`).
+- Copilot'un bulduğu her açık ve gece yakaladığımız görünmez karakter sorunu için ayrı test var.
 - **GitHub Actions**, her push ve pull request'te testleri otomatik çalıştırıyor.
 
 ```
 python -m pytest -v
 ```
 
+### Gemma ile 10 soruluk test
+
+"Komutu unuttum" modunda 10 farklı soru sorduk (`soru_testi.py`):
+
+- Modelin ham cevapları: **6 doğru, 2 kısmen doğru, 2 yanlış.** Ortalama cevap süresi ~10 saniye.
+- Model 3 kez tehlikeli komut önerdi (`rmdir /s /q`, `git reset --hard`); **üçünü de `guvenlik.py` yakaladı.**
+- Bir soruda model riski "orta" olarak hafife aldı; kural tabanlı katman bunu "tehlikeli" olarak düzeltti.
+- Yanlışlardan biri, belirsiz bir istekte ("değiştir") sormak yerine silmeyi tahmin etmesiydi. Bunu talimatla çözemedik, **kodla çözdük** (Güvenlik katmanları, madde 4). Diğeri, CMD'de olmayan bir Linux komutu (`head`) önermesiydi.
+- Küçük model "push" ile "commit"i karıştırıyordu; talimata tek bir örnek ekleyerek düzelttik. Artık "Git push geçmişini ayrıca tutmaz" diyor.
+
+### Hız ölçümü
+
+`hiz_testi.py` ile sürenin nereye gittiğini ölçtük:
+
+| Durum | Süre |
+|---|---|
+| İlk açılış (model bellekte değil) | 61 sn, bunun 43 sn'si modelin yüklenmesi |
+| Model bellekte, şarj aleti takılı değil | 15-17 sn |
+| Şarj aleti takılı, performans modu | 11-13 sn |
+| Model 30 dk bellekte tutuluyor + cevaplar kısaltıldı | **~9-10 sn** |
+
+Orta segment bir öğrenci laptopunda (MSI, NVIDIA ekran kartı) `gemma4:e4b` tamamen GPU'da çalışıyor.
+
 ## Bilinen sınırlar
 
 - Uzun süren veya kullanıcıdan girdi bekleyen komutlar (`npm run dev`, `input()` bekleyen betikler) takılı kalır, çünkü çıktı yakalanıyor.
 - Sadece CMD ve PowerShell algılanıyor; Git Bash henüz desteklenmiyor.
 - Tehlike kontrolü bir yasak listesi; her şeyi yakalayamaz. Asıl güvenlik önlemi, her komutun kullanıcı onayı gerektirmesi.
+- Küçük ve yerel bir model kullandığımız için model bazen yanılabiliyor (örneğin Windows'ta olmayan bir Linux komutu önerebiliyor). Bu yüzden hiçbir komut onaysız çalışmıyor.
 - Model sadece maskelenmiş veriyi gördüğü için bazen tam olarak doğru komutu öneremiyor (örneğin hiç görmediği bir IP'ye `ping` atamıyor). Bu ödünleşimi bilinçli olarak kabul ediyoruz.
 
 ## Proje yapısı ve modül sözleşmesi
 
 ```
-main.py      → komut satırı girişi (typer)
-baglam.py    → komutu çalıştırır; çıktı, hata kodu, klasör, kabuk ve git durumunu toplar
-maskeleme.py → gizli bilgileri gizler
-gemma.py     → Ollama üzerinden Gemma 4'e sorar, cevabı JSON olarak alır
-guvenlik.py  → tehlikeli komutları Türkçe açıklamayla işaretler
-arayuz.py    → rich arayüzü: panel, risk rengi, [E]/[C]/[A], çift onay
+main.py         → komut satırı girişi (typer), belirsiz istek kontrolü
+baglam.py       → komutu çalıştırır; çıktı, hata kodu, klasör, kabuk ve git durumunu toplar
+maskeleme.py    → gizli bilgileri gizler
+gemma.py        → Ollama üzerinden Gemma 4'e sorar, cevabı JSON olarak alır
+guvenlik.py     → tehlikeli komutları Türkçe açıklamayla işaretler
+arayuz.py       → rich arayüzü: panel, risk rengi, [E]/[C]/[A], çift onay
+tests/          → pytest testleri
+demo-sirket/    → kurgusal şirket senaryosu
+hiz_testi.py    → Gemma hız ölçümü
+soru_testi.py   → Gemma'ya 10 farklı soru soran test
 ```
 
 Projenin iki yarısı paralel olarak geliştirildi. Parçaların birbirine uyması için önce aşağıdaki sözleşme üzerinde anlaştık; ilk uçtan uca deneme hiçbir değişiklik gerektirmeden çalıştı.

@@ -60,3 +60,13 @@ if __name__ == "__main__":
         print(f"[{isaret}] {ornek}")
         if sonuc["tehlikeli"]:
             print(f"            -> {sonuc['sebep']}")
+
+
+# Kullanıcının isteğinde silme/geri alma niyeti var mı?
+# Yoksa ve model yine de tehlikeli bir komut önerdiyse, istek belirsiz demektir.
+SILME_IFADELERI = ("sil", "kaldır", "kaldir", "temizle", "delete", "remove", "sıfırla", "sifirla", "geri al", "reset", "format")
+
+
+def istek_tehlikeyi_gerektiriyor_mu(istek):
+    istek = istek.lower()
+    return any(ifade in istek for ifade in SILME_IFADELERI)            
