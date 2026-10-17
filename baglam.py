@@ -2,6 +2,7 @@ import os
 import subprocess
 
 import psutil
+from maskeleme import maskele
 
 
 def kabuk_bul():
@@ -42,14 +43,15 @@ def baglam_topla(komut):
     cikti = sonuc.stdout + sonuc.stderr
 
     return {
-        "komut": komut,
-        "cikti": cikti,
+        "komut": maskele(komut),
+        "cikti": maskele(cikti),
         "hata_kodu": sonuc.returncode,
-        "klasor": os.getcwd(),
+        "klasor": maskele(os.getcwd()),
         "kabuk": kabuk,
-        "git": git_durumu(),
+        "git": maskele(git_durumu()),
     }
 
 
 if __name__ == "__main__":
     print(baglam_topla("python olmayan_dosya.py"))
+    print(baglam_topla("echo API_KEY=abc123xyz"))
