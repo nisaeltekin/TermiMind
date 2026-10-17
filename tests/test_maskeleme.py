@@ -38,6 +38,29 @@ def test_hata_ismi_bozulmaz():
 def test_yerel_ip_gizlenmez():
     assert "127.0.0.1" in maskele("Connection refused: 127.0.0.1:5432")
 
+
 def test_gorunmez_karakter_maskelemeyi_atlatamaz():
     sonuc = maskele("250541012\x91@firat.edu.tr")
     assert "firat.edu.tr" not in sonuc
+
+
+def test_tirnakli_degerler_gizlenir():
+    assert "gercek" not in maskele('API_KEY="gercek-gizli-deger"')
+    assert "gercek" not in maskele('{"api_key": "gercek-gizli-deger"}')
+    assert "gizli" not in maskele("DB_PASSWORD='cok gizli sifre'")
+
+
+def test_unicode_ve_renk_kodlari_maskelemeyi_atlatamaz():
+    assert "gercek" not in maskele("API_\u2061KEY=gercek-gizli-deger")
+    assert "gercek" not in maskele("API\u202e_KEY=gercek-gizli-deger")
+    assert "gercek" not in maskele("API_\x1b[31mKEY=gercek-gizli-deger")
+
+
+def test_bearer_ve_jwt_gizlenir():
+    sonuc = maskele("Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abc123def")
+    assert "eyJ" not in sonuc
+
+
+def test_servis_tokenlari_gizlenir():
+    for token in ("glpat-" + "A" * 20, "xoxb-" + "1" * 20, "npm_" + "B" * 30, "AKIA" + "C" * 16):
+        assert token not in maskele("anahtar " + token)

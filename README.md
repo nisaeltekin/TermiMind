@@ -2,7 +2,7 @@
 
 **Gemma 4 ile çalışan, yerel ve gizlilik odaklı terminal asistanı.** Hataları sade bir Türkçeyle açıklar, güvenli düzeltmeler önerir ve gizli bilgilerini hiçbir yere göndermez.
 
-**Hacktoberfest Elazığ 2026**'da tek gecede geliştirildi.
+**Hacktoberfest Elazığ 2026**'da ilot chattek gecede geliştirildi.
 
 ## Neden TermiMind?
 
