@@ -4,33 +4,41 @@ Local, privacy-first terminal assistant powered by Gemma 4. Explains errors in p
 
 
 
-&#x20;## Ortak Sözleşme 
+&#x20;## Ortak Sözleşme
 
 
 
-&#x20;### baglam\_topla(komut) şunu döndürür: 
+&#x20;### baglam\_topla(komut) şunu döndürür:
 
-\- komut: çalıştırılan komut (metin) 
+\- komut: çalıştırılan komut (metin)
 
-\- cikti: komutun çıktısı veya hata mesajı (metin) 
+\- cikti: komutun çıktısı veya hata mesajı (metin)
 
-\- hata\_kodu: 0 ise başarılı, başka sayıysa hata (sayı) 
+\- hata\_kodu: 0 ise başarılı, başka sayıysa hata (sayı)
 
-\- klasor: komutun çalıştığı klasör (metin) 
+\- klasor: komutun çalıştığı klasör (metin)
 
-\- kabuk: "CMD" veya "PowerShell" (metin) 
+\- kabuk: "CMD" veya "PowerShell" (metin)
 
-\- git: git durumu, git yoksa boş (metin) 
+\- git: git durumu, git yoksa boş (metin)
 
 
 
-&#x20;### gemma\_sor(baglam) şunu döndürür: 
+&#x20;### gemma\_sor(baglam) şunu döndürür:
 
-\- aciklama: hatanın Türkçe açıklaması 
+\- aciklama: hatanın Türkçe açıklaması
 
-\- komut: önerilen düzeltme komutu 
+\- komut: önerilen düzeltme komutu
 
-\- risk: "dusuk", "orta" veya "yuksek" 
+\- risk: "dusuk", "orta" veya "yuksek"
 
 \- ipucu: bir dahakine dikkat edilecek şey
+
+
+
+\### tehlike\_kontrol(komut) şunu döndürür:
+
+\- tehlikeli: True veya False
+
+\- sebep: neden tehlikeli olduğunun Türkçe açıklaması (güvenliyse boş)
 
