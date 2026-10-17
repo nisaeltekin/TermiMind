@@ -1,5 +1,9 @@
 import re
 
+# Görünmez kontrol karakterleri (\x91 gibi) ve sıfır genişlikli boşluklar.
+# Maskelemeyi atlatmasınlar diye en başta temizleniyor. Satır sonu, tab ve renk kodu (ESC) korunuyor.
+GORUNMEZ = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1a\x1c-\x1f\x7f-\x9f\u200b-\u200f\u2060\ufeff]")
+
 # Her satır: (aranacak desen, yerine konacak metin)
 DESENLER = [
     # 1. .env satırları: API_KEY=..., DB_PASSWORD: ..., DB_SIFRE=...
@@ -12,12 +16,13 @@ DESENLER = [
     (re.compile(r"\b(?!127\.0\.0\.1\b)(?!0\.0\.0\.0\b)(?:\d{1,3}\.){3}\d{1,3}\b"), "***.***.***.***"),
     # 4. E-posta adresleri
     (re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"), "***@***"),
-    # 5. Windows kullanıcı adı
+    # 5. Windows kullanıcı adı (tek veya çift ters bölüyle yazılmış yollar)
     (re.compile(r"(?i)(C:[\\/]+Users[\\/]+)[^\\/'\"\n]+"), r"\1***"),
 ]
 
 
 def maskele(metin):
+    metin = GORUNMEZ.sub("", metin)
     for desen, yerine in DESENLER:
         metin = desen.sub(yerine, metin)
     return metin

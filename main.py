@@ -41,7 +41,8 @@ def ana(
         baglam = komut_sor_baglami(" ".join(komut))
     else:
         console.print("[dim]Komut çalıştırılıyor...[/dim]")
-        baglam = baglam_topla(subprocess.list2cmdline(komut))
+        komut_metni = komut[0] if len(komut) == 1 else subprocess.list2cmdline(komut)
+        baglam = baglam_topla(komut_metni)
         baglam["mod"] = "hata"
         if baglam["cikti"]:
             console.print(baglam["cikti"], markup=False, highlight=False)
@@ -51,6 +52,8 @@ def ana(
 
     with console.status("Gemma düşünüyor..."):
         cevap = gemma_sor(baglam)
+    if baglam["mod"] == "hata" and cevap["komut"].strip() == baglam["komut"].strip():
+        cevap["komut"] = ""
     goster_ve_onayla(cevap, baglam["kabuk"])
 
 

@@ -8,6 +8,7 @@ from rich.text import Text
 
 from baglam import kabuk_bul, komutu_calistir
 from guvenlik import tehlike_kontrol
+from maskeleme import maskele
 
 console = Console()
 
@@ -70,9 +71,8 @@ def calistir(komut, kabuk):
         return
     cikti = (sonuc.stdout or "") + (sonuc.stderr or "")
     if cikti.strip():
-        console.print(cikti, markup=False, highlight=False)
+        console.print(maskele(cikti), markup=False, highlight=False)
     console.print("[dim]Bitti. Çıkış kodu: " + str(sonuc.returncode) + "[/dim]")
-
 
 def secim_sor(izinli):
     while True:
@@ -93,8 +93,8 @@ def goster_ve_onayla(cevap, kabuk="CMD"):
     if "***" in komut:
         console.print(
             "[bold yellow]Bu komutta maskelenmiş gizli bir değer (***) var. "
-            "Çalıştırılırsa gerçek ayarının üzerine *** yazılır, bu yüzden [E] kapalı. "
-            "Komutu kopyala ve *** yerine gizli değeri kendin yaz.[/bold yellow]"
+            "Gizli değerler modele hiç gönderilmediği için komut eksik; bu yüzden [E] kapalı. "
+            "Komutu kopyala ve *** yerine gerçek değeri kendin yaz.[/bold yellow]"
         )
         console.print("[bold]\\[C][/bold] Kopyala   [bold]\\[A][/bold] Vazgeç")
         izinli = ("c", "a")

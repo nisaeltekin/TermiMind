@@ -37,3 +37,7 @@ def test_hata_ismi_bozulmaz():
 
 def test_yerel_ip_gizlenmez():
     assert "127.0.0.1" in maskele("Connection refused: 127.0.0.1:5432")
+
+def test_gorunmez_karakter_maskelemeyi_atlatamaz():
+    sonuc = maskele("250541012\x91@firat.edu.tr")
+    assert "firat.edu.tr" not in sonuc
