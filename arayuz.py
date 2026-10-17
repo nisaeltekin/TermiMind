@@ -6,14 +6,29 @@ from rich.console import Console, Group
 from rich.panel import Panel
 from rich.text import Text
 
+from guvenlik import tehlike_kontrol
+
 console = Console()
 
 RISK_RENK = {"dusuk": "green", "orta": "yellow", "yuksek": "red"}
 RISK_ETIKET = {"dusuk": "DÜŞÜK", "orta": "ORTA", "yuksek": "YÜKSEK"}
 
 
-def panel_olustur(cevap):
-    risk = cevap.get("risk", "yuksek")
+def degerlendir(cevap):
+    """Gemma'nin riski ve guvenlik.py'nin sonucundan birlesik karar verir."""
+    komut = cevap.get("komut", "")
+    sebep = ""
+    tehlikeli = cevap.get("risk", "yuksek") == "yuksek"
+    if komut:
+        kontrol = tehlike_kontrol(komut)
+        if kontrol.get("tehlikeli"):
+            tehlikeli = True
+            sebep = kontrol.get("sebep", "")
+    return tehlikeli, sebep
+
+
+def panel_olustur(cevap, tehlikeli, sebep):
+    risk = "yuksek" if tehlikeli else cevap.get("risk", "yuksek")
     renk = RISK_RENK.get(risk, "red")
 
     parcalar = [Text(cevap.get("aciklama", ""))]
@@ -23,6 +38,10 @@ def panel_olustur(cevap):
         parcalar.append(Text(""))
         parcalar.append(Text("Önerilen komut:", style="bold"))
         parcalar.append(Text("  " + komut, style="bold cyan"))
+
+    if sebep:
+        parcalar.append(Text(""))
+        parcalar.append(Text("UYARI: " + sebep, style="bold red"))
 
     ipucu = cevap.get("ipucu", "")
     if ipucu:
@@ -56,7 +75,8 @@ def secim_sor():
 
 
 def goster_ve_onayla(cevap):
-    console.print(panel_olustur(cevap))
+    tehlikeli, sebep = degerlendir(cevap)
+    console.print(panel_olustur(cevap, tehlikeli, sebep))
 
     komut = cevap.get("komut", "")
     if not komut:
@@ -68,8 +88,8 @@ def goster_ve_onayla(cevap):
     if secim == "c":
         kopyala(komut)
     elif secim == "e":
-        if cevap.get("risk") == "yuksek":
-            console.print("[bold red]UYARI: Bu komut tehlikeli olabilir (dosya silme, sistem değişikliği vb.).[/bold red]")
+        if tehlikeli:
+            console.print("[bold red]Bu komut tehlikeli olabilir.[/bold red]")
             emin = console.input("Yine de çalıştırılsın mı? (evet yaz): ").strip().lower()
             if emin != "evet":
                 console.print("[yellow]Vazgeçildi.[/yellow]")
@@ -87,10 +107,10 @@ if __name__ == "__main__":
         "ipucu": "Modül hatalarında genelde pip install ile kurulum gerekir.",
     })
     goster_ve_onayla({
-        "aciklama": "Belirtilen klasördeki .tmp dosyalarını siler.",
-        "komut": "echo del *.tmp",
-        "risk": "yuksek",
-        "ipucu": "Silmeden önce dosya listesine bak.",
+        "aciklama": "Gemma bunu düşük riskli saydı ama guvenlik.py yakalamalı.",
+        "komut": "rmdir /s /q yok_boyle_klasor",
+        "risk": "dusuk",
+        "ipucu": "Silmeden önce klasörün içeriğine bak.",
     })
     goster_ve_onayla({
         "aciklama": "Gemma'ya ulaşılamadı. Ollama açık mı kontrol et.",
