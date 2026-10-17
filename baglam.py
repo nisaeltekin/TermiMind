@@ -21,12 +21,25 @@ def kabuk_bul():
     return "CMD"
 
 
+def metne_cevir(veri):
+    # Önce UTF-8 dene (git gibi programlar), olmazsa Windows konsol kodlaması (dir gibi komutlar)
+    for kodlama in ("utf-8", "oem"):
+        try:
+            return veri.decode(kodlama)
+        except (UnicodeDecodeError, LookupError):
+            continue
+    return veri.decode("utf-8", errors="replace")
+
+
 def komutu_calistir(komut, kabuk):
-    # Komutu kullanıcının kabuğunda çalıştır
-    ayarlar = {"capture_output": True, "text": True, "errors": "replace"}
+    # Komutu kullanıcının kabuğunda çalıştır, çıktıyı ham bayt olarak al
     if kabuk == "PowerShell":
-        return subprocess.run(["powershell", "-NoProfile", "-Command", komut], **ayarlar)
-    return subprocess.run(komut, shell=True, **ayarlar)
+        sonuc = subprocess.run(["powershell", "-NoProfile", "-Command", komut], capture_output=True)
+    else:
+        sonuc = subprocess.run(komut, shell=True, capture_output=True)
+    sonuc.stdout = metne_cevir(sonuc.stdout)
+    sonuc.stderr = metne_cevir(sonuc.stderr)
+    return sonuc
 
 
 def git_durumu():
