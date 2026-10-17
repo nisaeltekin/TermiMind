@@ -54,7 +54,9 @@ def talimat_hazirla(baglam):
         )
     return ortak + (
         " Kullanıcının komutu hata verdi. "
-        "aciklama alanında hatanın sebebini anlat, komut alanında düzeltmeyi öner."
+        "aciklama alanında hatanın sebebini anlat, komut alanında düzeltmeyi öner. "
+        "Önerdiğin komut, hata veren komutun aynısı olamaz. "
+        "Sorunu çözen uygun bir terminal komutu yoksa komut alanını boş bırak."
     )
 
 
@@ -83,8 +85,7 @@ def cevap_isle(ham):
         "risk": RISK_DUZELTME.get(str(veri.get("risk", "")).strip().lower(), "yuksek"),
         "ipucu": str(veri.get("ipucu", "")).strip(),
     }
-    if not sonuc["komut"]:
-        raise ValueError("Model komut önermedi")
+    
     return sonuc
 
 
