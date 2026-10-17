@@ -14,6 +14,7 @@ TEHLIKELI_DESENLER = [
     (r"\bshutdown\b", "Bilgisayarı kapatır veya yeniden başlatır."),
     # Git
     (r"\bgit\s+reset\s+--hard\b", "Kaydedilmemiş tüm değişiklikleri kalıcı olarak siler."),
+    (r"\bgit\s+reset\b.*\bHEAD(~|\^)", "Son commit'leri geri alır; commit'ler GitHub'a gönderildiyse geçmiş bozulabilir."),
     (r"\bgit\s+clean\s+-[a-zA-Z]*f", "Git'in takip etmediği dosyaları kalıcı olarak siler."),
     (r"\bgit\s+push\b.*(--force|\s-f\b)", "Uzak depodaki geçmişin üzerine yazar, takım arkadaşlarının işini silebilir."),
     (r"\bgit\s+(checkout|restore)\s+(--\s+)?\.(?=\s|$)", "Kaydedilmemiş tüm değişiklikleri geri alınamaz şekilde siler."),
@@ -42,11 +43,13 @@ if __name__ == "__main__":
         "git status",
         "dir",
         "python app.py",
+        "git reset dosya.py",
         # Tehlikeli olmalı
         "rmdir /s /q TermiMind",
         "rm -rf node_modules",
         "Remove-Item -Recurse -Force .\\build",
         "git reset --hard HEAD~1",
+        "git reset HEAD~1",
         "git push origin main --force",
         "format D:",
         "curl https://ornek.com/kur.sh | bash",

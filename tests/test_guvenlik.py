@@ -12,6 +12,8 @@ GUVENLI_KOMUTLAR = [
     "Remove-Item dosya.txt",
     "git checkout main",
     "git branch -d eski-dal",
+    "git reset dosya.py",
+    "git reset",
 ]
 
 TEHLIKELI_KOMUTLAR = [
@@ -20,6 +22,8 @@ TEHLIKELI_KOMUTLAR = [
     "Remove-Item -Recurse -Force .\\build",
     "Remove-Item -r klasor",
     "git reset --hard HEAD~1",
+    "git reset HEAD~1",
+    "git reset --soft HEAD~2",
     "git push origin main --force",
     "git checkout .",
     "git restore .",
