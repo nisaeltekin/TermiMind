@@ -1,4 +1,13 @@
+import os
 import subprocess
+
+
+def git_durumu():
+    # Git durumunu sor; klasör bir git reposu değilse boş metin döndür
+    sonuc = subprocess.run("git status --short --branch", shell=True, capture_output=True, text=True)
+    if sonuc.returncode != 0:
+        return ""
+    return sonuc.stdout
 
 
 def baglam_topla(komut):
@@ -13,9 +22,9 @@ def baglam_topla(komut):
         "komut": komut,
         "cikti": cikti,
         "hata_kodu": sonuc.returncode,
-        "klasor": "",
+        "klasor": os.getcwd(),
         "kabuk": "",
-        "git": "",
+        "git": git_durumu(),
     }
 
 
