@@ -66,12 +66,12 @@ def calistir(komut):
     console.print("[dim]Bitti. Çıkış kodu: " + str(sonuc.returncode) + "[/dim]")
 
 
-def secim_sor():
+def secim_sor(izinli):
     while True:
-        secim = console.input("Seçimin (e/c/a): ").strip().lower()
-        if secim in ("e", "c", "a"):
+        secim = console.input("Seçimin (" + "/".join(izinli) + "): ").strip().lower()
+        if secim in izinli:
             return secim
-        console.print("[red]Sadece e, c veya a yaz.[/red]")
+        console.print("[red]Sadece " + ", ".join(izinli) + " yaz.[/red]")
 
 
 def goster_ve_onayla(cevap):
@@ -82,8 +82,21 @@ def goster_ve_onayla(cevap):
     if not komut:
         return
 
-    console.print("[bold]\\[E][/bold] Çalıştır   [bold]\\[C][/bold] Kopyala   [bold]\\[A][/bold] Vazgeç")
-    secim = secim_sor()
+    gizli_var = "***" in komut
+
+    if gizli_var:
+        console.print(
+            "[bold yellow]Bu komutta maskelenmiş gizli bir değer (***) var. "
+            "Çalıştırılırsa gerçek ayarının üzerine *** yazılır, bu yüzden [E] kapalı. "
+            "Komutu kopyala ve *** yerine gizli değeri kendin yaz.[/bold yellow]"
+        )
+        console.print("[bold]\\[C][/bold] Kopyala   [bold]\\[A][/bold] Vazgeç")
+        izinli = ("c", "a")
+    else:
+        console.print("[bold]\\[E][/bold] Çalıştır   [bold]\\[C][/bold] Kopyala   [bold]\\[A][/bold] Vazgeç")
+        izinli = ("e", "c", "a")
+
+    secim = secim_sor(izinli)
 
     if secim == "c":
         kopyala(komut)
@@ -101,20 +114,14 @@ def goster_ve_onayla(cevap):
 
 if __name__ == "__main__":
     goster_ve_onayla({
-        "aciklama": "Python, 'flask' modülünü bulamadı çünkü kurulu değil.",
+        "aciklama": "API anahtarı eksik olduğu için hata veriyor.",
+        "komut": "set API_KEY=***",
+        "risk": "dusuk",
+        "ipucu": "Anahtarı kendin yazmalısın.",
+    })
+    goster_ve_onayla({
+        "aciklama": "Normal, güvenli bir komut.",
         "komut": "echo pip install flask",
         "risk": "dusuk",
-        "ipucu": "Modül hatalarında genelde pip install ile kurulum gerekir.",
-    })
-    goster_ve_onayla({
-        "aciklama": "Gemma bunu düşük riskli saydı ama guvenlik.py yakalamalı.",
-        "komut": "rmdir /s /q yok_boyle_klasor",
-        "risk": "dusuk",
-        "ipucu": "Silmeden önce klasörün içeriğine bak.",
-    })
-    goster_ve_onayla({
-        "aciklama": "Gemma'ya ulaşılamadı. Ollama açık mı kontrol et.",
-        "komut": "",
-        "risk": "yuksek",
         "ipucu": "",
     })
