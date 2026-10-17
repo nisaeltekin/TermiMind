@@ -37,14 +37,21 @@ def git_durumu():
     return sonuc.stdout
 
 
+SON_KARAKTER = 3000
+
+
 def baglam_topla(komut):
     kabuk = kabuk_bul()
     sonuc = komutu_calistir(komut, kabuk)
-    cikti = sonuc.stdout + sonuc.stderr
+
+    # Önce maskele, SONRA kısalt
+    cikti = maskele(sonuc.stdout + sonuc.stderr)
+    if len(cikti) > SON_KARAKTER:
+        cikti = "...(önceki kısım kısaltıldı)...\n" + cikti[-SON_KARAKTER:]
 
     return {
         "komut": maskele(komut),
-        "cikti": maskele(cikti),
+        "cikti": cikti,
         "hata_kodu": sonuc.returncode,
         "klasor": maskele(os.getcwd()),
         "kabuk": kabuk,

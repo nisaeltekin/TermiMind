@@ -25,3 +25,15 @@ def test_kullanici_adi_gizlenir():
 def test_normal_hata_mesaji_bozulmaz():
     metin = "ModuleNotFoundError: No module named 'flask'"
     assert maskele(metin) == metin
+
+
+def test_turkce_sifre_gizlenir():
+    assert maskele("DB_SIFRE=gizli123") == "DB_SIFRE=***"
+
+
+def test_hata_ismi_bozulmaz():
+    assert "Signature" in maskele("jwt.exceptions.InvalidTokenError: Signature has expired")
+
+
+def test_yerel_ip_gizlenmez():
+    assert "127.0.0.1" in maskele("Connection refused: 127.0.0.1:5432")

@@ -2,16 +2,17 @@ import re
 
 # Her satır: (aranacak desen, yerine konacak metin)
 DESENLER = [
-    # 1. .env satırları: API_KEY=..., DB_PASSWORD: ..., SECRET_TOKEN=...
-    (re.compile(r"(?i)\b([A-Z0-9_]*(?:KEY|SECRET|TOKEN|PASSWORD|PASSWD|PWD)[A-Z0-9_]*)\s*([=:])\s*[^\s\"']+"), r"\1\2***"),
+    # 1. .env satırları: API_KEY=..., DB_PASSWORD: ..., DB_SIFRE=...
+    #    Adı Error/Exception/Warning ile biten hata isimleri hariç (örn. InvalidTokenError)
+    (re.compile(r"(?i)\b(\w*(?:KEY|SECRET|TOKEN|PASSWORD|PASSWD|PWD|SIFRE|ŞIFRE|ŞİFRE|PAROLA)\w*)(?<!ERROR)(?<!EXCEPTION)(?<!WARNING)\s*([=:])\s*[^\s\"']+"), r"\1\2***"),
     # 2. Bilinen servis anahtarları
     (re.compile(r"\b(?:ghp|gho|github_pat)_[A-Za-z0-9_]{20,}"), "***"),
     (re.compile(r"\bsk-[A-Za-z0-9_-]{20,}"), "***"),
-    # 3. IP adresleri
-    (re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"), "***.***.***.***"),
+    # 3. IP adresleri (yerel 127.0.0.1 ve 0.0.0.0 hariç, bunlar gizli değil)
+    (re.compile(r"\b(?!127\.0\.0\.1\b)(?!0\.0\.0\.0\b)(?:\d{1,3}\.){3}\d{1,3}\b"), "***.***.***.***"),
     # 4. E-posta adresleri
     (re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"), "***@***"),
-    # 5. Windows kullanıcı adı (tek veya çift ters bölüyle yazılmış yollar)
+    # 5. Windows kullanıcı adı
     (re.compile(r"(?i)(C:[\\/]+Users[\\/]+)[^\\/'\"\n]+"), r"\1***"),
 ]
 
