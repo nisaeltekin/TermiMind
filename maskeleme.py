@@ -16,7 +16,7 @@ def gorunmezleri_temizle(metin):
 DESENLER = [
     # 1. .env satırları: API_KEY=..., API_KEY="...", "api_key": "...", DB_SIFRE=...
     #    Adı Error/Exception/Warning ile biten hata isimleri hariç (örn. InvalidTokenError)
-    (re.compile(r"(?i)\b(\w*(?:KEY|SECRET|TOKEN|PASSWORD|PASSWD|PWD|SIFRE|ŞIFRE|ŞİFRE|PAROLA)\w*)(?<!ERROR)(?<!EXCEPTION)(?<!WARNING)([\"']?)(\s*[=:]\s*)(?:\"[^\"\n]*\"|'[^'\n]*'|[^\s\"']+)"), r"\1\2\3***"),
+    (re.compile(r"(?i)\b(\w*(?:KEY|SECRET|TOKEN|PASSWORD|PASSWD|PWD|SIFRE|ŞIFRE|ŞİFRE|PAROLA|KULLANICI|USERNAME)\w*)(?<!ERROR)(?<!EXCEPTION)(?<!WARNING)([\"']?)(\s*[=:]\s*)(?:\"[^\"\n]*\"|'[^'\n]*'|[^\s\"']+)"), r"\1\2\3***"),
     # 2. Bearer token ve JWT
     (re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/-]+=*"), "Bearer ***"),
     (re.compile(r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+"), "***"),

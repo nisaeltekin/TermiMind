@@ -64,3 +64,8 @@ def test_bearer_ve_jwt_gizlenir():
 def test_servis_tokenlari_gizlenir():
     for token in ("glpat-" + "A" * 20, "xoxb-" + "1" * 20, "npm_" + "B" * 30, "AKIA" + "C" * 16):
         assert token not in maskele("anahtar " + token)
+
+
+
+def test_veritabani_kullanici_adi_gizlenir():
+    assert "lojistik_app" not in maskele("Veritabanina baglanilamadi (kullanici=lojistik_app).")
