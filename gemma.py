@@ -38,25 +38,37 @@ def talimat_hazirla(baglam):
         "Önerdiğin komut bu kabukta çalışmalı (CMD ve PowerShell komutları farklıdır). "
         "Sadece JSON döndür, başka hiçbir şey yazma. "
         "JSON tam olarak şu 4 anahtarı içermeli: "
-        "aciklama (Türkçe, kısa ve sade), "
+        "aciklama (Türkçe, en fazla 2 kısa cümle), "
         "komut (önerilen tek bir komut), "
         "risk (sadece şu 3 İngilizce değerden biri: low, medium, high), "
-        "ipucu (bir dahaki sefere dikkat edilecek şey, Türkçe, tek cümle). "
+        "ipucu (bir dahaki sefere dikkat edilecek şey, Türkçe, tek kısa cümle). "
         "Risk kuralı: sadece bilgi gösteren veya paket kuran komutlar low. "
         "Dosya değiştiren komutlar medium. "
-        "Dosya silen, disk formatlayan, sistem ayarı değiştiren komutlar high."
+        "Dosya silen, disk formatlayan, sistem ayarı değiştiren komutlar high. "
+        "Komutlarda tam yol yazma, bulunulan klasöre göre göreli yol kullan (örn. node_modules). "
+        "İstek belirsizse veya eksik bilgi varsa tahmin etme: aciklama alanında kullanıcıya ne demek istediğini "
+        "soran kısa bir soru yaz ve komut alanını boş bırak. Belirsiz bir istek için asla silme komutu önerme."
     )
 
     if mod == "komut_sor":
         return ortak + (
             " Kullanıcı bir komutu unuttu ve ne yapmak istediğini anlattı. "
-            "Ona uygun komutu öner. aciklama alanında komutun ne yaptığını anlat."
+            "Ona uygun komutu öner. aciklama alanında komutun ne yaptığını anlat. "
+            "Kullanıcının isteğini asla başka bir şeyle değiştirme. "
+            "İstenen şey tek bir komutla tam olarak yapılamıyorsa bunu aciklama alanında açıkça söyle, "
+            "en yakın komutu öner ve istenenle arasındaki farkı belirt."
+            " Örnek: kullanıcı 'son 3 push'u göster' derse, commit ile push'u karıştırma; "
+            "Git'in push geçmişini ayrıca tutmadığını söyle ve en yakın komut olarak "
+            "git reflog show origin/main öner."
         )
     return ortak + (
         " Kullanıcının komutu hata verdi. "
         "aciklama alanında hatanın sebebini anlat, komut alanında düzeltmeyi öner. "
         "Önerdiğin komut, hata veren komutun aynısı olamaz. "
         "Sorunu çözen uygun bir terminal komutu yoksa komut alanını boş bırak."
+        " Bağlantı hatalarında (ConnectionError, bağlanılamadı, timeout) sunucuya erişimi test eden bir komut öner: "
+        "CMD için ping ADRES -n 1, PowerShell için Test-NetConnection ADRES -Port PORT. Adres veya port maskelenmişse *** olarak yaz."
+
     )
 
 
@@ -104,6 +116,7 @@ def gemma_sor(baglam):
             think=False,
             format="json",
             options={"temperature": 0.2},
+            keep_alive="30m",
         )
         return cevap_isle(cevap["message"]["content"])
     except json.JSONDecodeError:
